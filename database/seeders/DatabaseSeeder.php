@@ -11,13 +11,12 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        $this->call([
-            HotelSeeder::class,      //
-            RoomSeeder::class,       //
-            RoomInventorySeeder::class,
-            DiscountSeeder::class,
-        ]);
-    }
+   public function run()
+{
+    $this->call([
+        RatePlanSeeder::class,
+        RatePlanPriceSeeder::class,
+        DiscountSeeder::class,
+    ]);
+}
 }

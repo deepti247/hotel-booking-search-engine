@@ -28,12 +28,11 @@
         }
     </style>
 </head>
-
 <body class="container mt-4">
 
 <h4 class="mb-3">Select your stay</h4>
 
-<!-- 🔍 SEARCH BOX -->
+<!-- Search Box -->
 <div class="search-box row align-items-end">
 
     <div class="col-md-3">
@@ -61,23 +60,23 @@
 
 </div>
 
-<!-- RESULTS -->
+<!-- Results -->
 <div id="results" class="mt-4"></div>
 
 <script>
 let guests = 1;
 
-//  Guest counter (now supports 4)
+// Guest counter
 function changeGuest(val) {
     guests += val;
 
     if (guests < 1) guests = 1;
-    if (guests > 4) guests = 4;
+    if (guests > 3) guests = 3;
 
     document.getElementById('guest_count').value = guests;
 }
 
-//  Date validation
+// Validate dates
 function validateDates(checkIn, checkOut) {
     if (!checkIn || !checkOut) {
         alert("Select both dates");
@@ -92,13 +91,14 @@ function validateDates(checkIn, checkOut) {
     return true;
 }
 
-//  API call
+// GET API call
 function searchRooms() {
     let checkIn = document.getElementById('check_in').value;
     let checkOut = document.getElementById('check_out').value;
 
     if (!validateDates(checkIn, checkOut)) return;
 
+    
     let url = `{{ url('/api/search') }}?check_in=${checkIn}&check_out=${checkOut}&guests=${guests}`;
 
     fetch(url)
@@ -107,7 +107,7 @@ function searchRooms() {
     .catch(err => console.log(err));
 }
 
-//  Render results (UPDATED FOR RATE PLANS)
+// Render results
 function renderResults(rooms) {
 
     let html = "";
@@ -122,52 +122,26 @@ function renderResults(rooms) {
         <div class="card room-card shadow-sm">
             <div class="row g-0">
 
-                <!-- IMAGE -->
                 <div class="col-md-4">
+                    
                     <img src="${getRoomImage(room.room_type)}" class="img-fluid h-100">
                 </div>
 
-                <!-- DETAILS -->
                 <div class="col-md-8 p-3">
-                    <h5 class="text-capitalize">${room.room_type}</h5>
+                    <h5>${room.room_type}</h5>
                     <p>Status: <strong>${room.status}</strong></p>
-                    <p>Available Rooms: ${room.available_rooms}</p>
 
-                    ${room.rate_plans.length === 0 ? `
-                        <div class="text-danger">
-                            No rate plans available for selected guests
-                        </div>
-                    ` : ''}
-
-                    ${room.rate_plans.map(plan => `
+                    ${room.options.map(opt => `
                         <div class="border-top pt-2 mt-2">
+                            <strong>${opt.type.replace('_',' ')}</strong><br>
 
-                            <!-- PLAN -->
-                            <strong>
-                                ${plan.plan_name} 
-                                (${formatMeal(plan.meal_type)})
-                            </strong><br>
-
-                            <!-- BASE PRICE -->
-                            <small>
-                                ₹${plan.price_per_night} × ${room.nights} nights
-                                = ₹${plan.original_total}
-                            </small><br>
-
-                            <!-- DISCOUNT -->
-                            <span class="text-muted">
-                                Discount: ${plan.discount_percent}%
-                            </span><br>
-
-                            <!-- FINAL -->
-                            <span class="price text-success">
-                                ₹${plan.final_price}
-                            </span>
+                            <span class="old-price">₹${opt.original_total ?? '-'}</span><br>
+                            <span class="price text-success">₹${opt.final_price ?? '-'}</span>
+                            <span class="text-muted"> (${opt.discount_percent}% off)</span>
 
                             <div class="mt-2">
                                 <button class="btn btn-sm btn-dark">Select</button>
                             </div>
-
                         </div>
                     `).join('')}
 
@@ -180,24 +154,19 @@ function renderResults(rooms) {
 
     document.getElementById('results').innerHTML = html;
 }
-
-//  Meal label formatter
-function formatMeal(mealType) {
-    if (mealType === 'none') return 'Room Only';
-    if (mealType === 'breakfast') return 'Breakfast Included';
-    if (mealType === 'all_meals') return 'All Meals Included';
-    return mealType;
-}
-
-//  Disable past dates
+</script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
+
     let today = new Date().toISOString().split('T')[0];
 
+    // Disable past dates
     document.getElementById("check_in").setAttribute("min", today);
     document.getElementById("check_out").setAttribute("min", today);
-});
 
-//  Room images
+});
+</script>
+<script>
 function getRoomImage(roomType) {
 
     roomType = roomType.toLowerCase();
@@ -210,9 +179,9 @@ function getRoomImage(roomType) {
         return "{{ asset('images/standard.jpg') }}";
     }
 
+    // default image
     return "{{ asset('images/default.jpg') }}";
 }
 </script>
-
 </body>
 </html>
