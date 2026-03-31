@@ -33,7 +33,7 @@
 
 <h4 class="mb-3">Select your stay</h4>
 
-<!-- 🔍 SEARCH BOX -->
+<!--  SEARCH BOX -->
 <div class="search-box row align-items-end">
 
     <div class="col-md-3">
